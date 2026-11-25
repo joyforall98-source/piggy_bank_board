@@ -11,23 +11,26 @@
   --bg:#fff;--card:#fff;--s900:#222;--s600:#555;--s500:#6b6b6b;--s200:#d9d9d9;--s100:#e6e6e6;--s50:#f7f7f5;
   --blue:#2b3cff;--ink:#111;
   --lilac:#c5b0f4;--cream:#f4ecd6;--pink:#efd4d4;--mint:#c8e6cd;--coral:#f3c9b6;--lime:#dceeb1;--grey:#d9d9d9;
+  --on-blue:#fff;
   --r:8px;--r-lg:24px;--ease:cubic-bezier(.2,.7,.2,1);
+  color-scheme:light dark;accent-color:var(--s900);
 }
 @media (prefers-color-scheme:dark){
-  :root{--bg:#121212;--card:#1b1b1b;--s900:#f2f2f2;--s600:#b3b3b3;--s500:#9a9a9a;--s200:#3a3a3a;--s100:#2a2a2a;--s50:#1f1f1f;--blue:#9aa5ff}
+  :root{--bg:#121212;--card:#1b1b1b;--s900:#f2f2f2;--s600:#b3b3b3;--s500:#9a9a9a;--s200:#3a3a3a;--s100:#2a2a2a;--s50:#1f1f1f;--blue:#9aa5ff;--on-blue:#111}
 }
+::selection{background:var(--lilac);color:var(--ink)}
+input{caret-color:var(--blue)}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--s900);font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif;line-height:1.5}
 .wrap{max-width:72rem;margin:0 auto;padding:1.25rem 1rem 3rem}
 header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--s100);padding-bottom:.9rem;margin-bottom:1.25rem}
-.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--s600);margin:0 0 .25rem}
 h1{font-size:clamp(1.6rem,1rem + 2.4vw,2.6rem);line-height:1.1;letter-spacing:-.03em;margin:0}
 h1 em{font-style:normal;font-weight:340;color:var(--blue)}
 h2{font-size:1.15rem;letter-spacing:-.02em;margin:0 0 .6rem}
 button,input,select{font:inherit;color:inherit}
 .btn{min-height:44px;padding:0 1.1rem;border:0;border-radius:var(--r);background:var(--s900);color:var(--bg);font-weight:540;cursor:pointer;transition:background .15s var(--ease)}
-.btn:hover:not(:disabled){background:var(--blue);color:#fff}
+.btn:hover:not(:disabled){background:var(--blue);color:var(--on-blue)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.sec{background:var(--card);color:var(--s900);box-shadow:inset 0 0 0 1px var(--s200)}
 .btn.sec:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--blue);background:var(--card);color:var(--blue)}
@@ -50,12 +53,18 @@ button,input,select{font:inherit;color:inherit}
 .rules li{margin:.25rem 0}
 
 /* 게임 화면 */
-.game{display:grid;gap:1.25rem;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}
-@media (max-width:900px){.game{grid-template-columns:1fr}}
-.board{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:3px;aspect-ratio:1;width:100%;max-width:640px;margin:0 auto}
-.sq{position:relative;border-radius:6px;color:var(--ink);padding:3px 4px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
-.sq b{font-size:clamp(.58rem,.3rem + 1.1vw,.85rem);line-height:1.1;letter-spacing:-.03em;word-break:keep-all}
-.sq span{font-size:clamp(.55rem,.3rem + .9vw,.78rem);font-variant-numeric:tabular-nums;line-height:1.1}
+.game{display:grid;gap:1.25rem;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-areas:"board event" "board side";grid-template-rows:auto 1fr;align-items:start}
+.game>.boardWrap{grid-area:board}.game>#event{grid-area:event;margin:0}.game>.side{grid-area:side}
+/* 한 줄 배치에서는 안내(주사위 단추)를 말판 위에 두어 차례마다 스크롤하지 않게 합니다 */
+@media (max-width:900px){.game{grid-template-columns:1fr;grid-template-areas:"event" "board" "side";grid-template-rows:none}}
+/* 말판 글자는 말판 폭(cqi)에 맞춰 커집니다: 휴대폰 약 11px, 교실 TV 20px 안팎 */
+.boardWrap{container-type:inline-size;width:100%;max-width:min(820px,calc(100svh - 9rem));margin:0 auto}
+.board{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:.5cqi;aspect-ratio:1;width:100%}
+.sq{position:relative;border-radius:1cqi;color:var(--ink);padding:.6cqi .8cqi;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
+.sq b{font-size:2.9cqi;line-height:1.1;letter-spacing:-.03em;word-break:keep-all}
+.sq span{font-size:2.5cqi;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1}
+.sq .short{display:none}
+@container (max-width:520px){.sq .long{display:none}.sq .short{display:inline}.sq b{font-size:3.2cqi}.sq span{font-size:2.8cqi}}
 .sq.in{background:var(--mint)}.sq.want{background:var(--pink)}.sq.need{background:var(--coral)}
 .sq.save{background:var(--cream)}.sq.give{background:var(--lilac)}.sq.lose{background:var(--grey)}.sq.start{background:var(--lime)}
 .sq.here{box-shadow:inset 0 0 0 3px var(--ink)}
@@ -90,7 +99,7 @@ th,td{padding:.4rem .45rem;border-bottom:1px solid var(--s100);text-align:right}
 th:nth-child(2),td:nth-child(2){text-align:left}
 th{font-weight:600;color:var(--s600);background:var(--s50)}
 td.q{color:var(--s500)}
-.ledger{max-height:22rem;overflow:auto;border-radius:var(--r);box-shadow:inset 0 0 0 1px var(--s100)}
+.ledger{max-height:22rem;overflow:auto;scrollbar-color:var(--s200) transparent;border-radius:var(--r);box-shadow:inset 0 0 0 1px var(--s100)}
 .end table td,.end table th{text-align:right}
 .end table td:first-child,.end table th:first-child{text-align:left}
 .reflect{margin-top:1rem}
@@ -103,12 +112,10 @@ footer a{color:inherit}
 <body>
 <div class="wrap">
   <header class="top">
-    <div>
-      <p class="eyebrow">경제·금융교육 · 3–6학년 · 말판놀이</p>
-      <h1>돈돈 돼지 <em>저금통</em></h1>
-    </div>
-    <p class="muted small" style="margin:0;max-width:26rem">주사위를 굴려 말판을 돌며 용돈을 벌고, 쓰고, 모으고, 나눠요. 용돈기입장은 저절로 채워져요.</p>
+    <h1>돈돈 돼지 <em>저금통</em></h1>
+    <p class="muted small" style="margin:0;max-width:28rem">3–6학년 경제·금융교육 말판놀이. 주사위를 굴려 말판을 돌며 용돈을 벌고, 쓰고, 모으고, 나눠요. 용돈기입장은 저절로 채워져요.</p>
   </header>
+  <main>
 
   <!-- 준비 -->
   <section id="setup" class="setup">
@@ -152,9 +159,10 @@ footer a{color:inherit}
   </section>
 
   <!-- 놀이 -->
-  <section id="game" class="game hidden" aria-live="polite">
-    <div>
-      <div class="board" id="board" role="img" aria-label="말판"></div>
+  <section id="game" class="game hidden" aria-label="놀이">
+    <div class="boardWrap">
+      <!-- 말판은 보이는 그림용. 말 위치는 오른쪽 이름 카드의 '위치'로 읽습니다 -->
+      <div class="board" id="board" aria-hidden="true"></div>
       <div class="legend" aria-hidden="true">
         <span><i style="background:var(--mint)"></i>돈을 벌어요</span>
         <span><i style="background:var(--pink)"></i>살까 참을까</span>
@@ -164,8 +172,8 @@ footer a{color:inherit}
         <span><i style="background:var(--grey)"></i>잃어버림</span>
       </div>
     </div>
-    <div>
-      <div class="event" id="event"></div>
+    <div class="event" id="event" aria-live="polite"></div>
+    <div class="side">
       <div class="players" id="players"></div>
       <h2 id="ledgerTitle">용돈기입장</h2>
       <div class="ledger"><table>
@@ -180,7 +188,7 @@ footer a{color:inherit}
     <div class="panel">
       <h2>놀이를 마쳤어요</h2>
       <div style="overflow:auto"><table>
-        <thead><tr><th>이름</th><th>지갑</th><th>저금통</th><th>기부한 돈</th><th>참은 횟수</th><th>못 산 횟수</th></tr></thead>
+        <thead><tr><th>이름</th><th>지갑</th><th>저금통</th><th>기부한 돈</th><th>참은 횟수</th><th>돈이 모자란 횟수</th></tr></thead>
         <tbody id="summary"></tbody>
       </table></div>
       <div class="reflect">
@@ -199,6 +207,7 @@ footer a{color:inherit}
       </div>
     </div>
   </section>
+  </main>
 
   <footer>
     <span>김천 경제캠프 말판놀이 「돈돈 돼지 저금통」을 웹으로 옮겼습니다 · 현쌤의 에듀랩</span>
@@ -210,30 +219,30 @@ footer a{color:inherit}
 // 말판 24칸. 출발에서 시계 방향으로 돕니다.
 // t: start 출발 / in 벌기 / want 살까 참을까 / need 꼭 필요 / save 저축 / give 기부 / lose 잃어버림
 const SQ = [
-  {n:'출발', t:'start'},
+  {n:'출발', s:'출발', t:'start'},
   {n:'심부름', t:'in', a:2000, d:'가게 심부름을 다녀왔어요.'},
-  {n:'간식', t:'want', a:1000, d:'떡볶이 냄새가 나요.'},
+  {n:'간식', t:'want', it:'간식을', a:1000, d:'떡볶이 냄새가 나요.'},
   {n:'집안일', t:'in', a:1000, d:'설거지를 도왔어요.'},
-  {n:'학용품', t:'need', a:3000, d:'다 쓴 공책을 새로 사야 해요.'},
+  {n:'학용품', t:'need', it:'공책을', a:3000, d:'다 쓴 공책을 새로 사야 해요.'},
   {n:'저축', t:'save'},
-  {n:'인사 미션', t:'in', a:1000, d:'이웃에게 먼저 인사했어요.'},
-  {n:'깜짝 선물', t:'in', a:2000, d:'할머니께서 용돈을 주셨어요.'},
-  {n:'간식', t:'want', a:2000, d:'새로 나온 아이스크림이 보여요.'},
-  {n:'다쳤어요', t:'need', a:3000, d:'넘어져서 밴드와 약을 사야 해요.'},
-  {n:'바른 글씨', t:'in', a:3000, d:'바른 마음 바른 글씨로 칭찬을 받았어요.'},
+  {n:'인사 미션', s:'인사', t:'in', a:1000, d:'이웃에게 먼저 인사했어요.'},
+  {n:'깜짝 선물', s:'선물', t:'in', a:2000, d:'할머니께서 용돈을 주셨어요.'},
+  {n:'간식', t:'want', it:'간식을', a:2000, d:'새로 나온 아이스크림이 보여요.'},
+  {n:'다쳤어요', s:'다침', t:'need', it:'밴드와 약을', a:3000, d:'넘어져서 밴드와 약을 사야 해요.'},
+  {n:'바른 글씨', s:'칭찬', t:'in', a:3000, d:'바른 마음 바른 글씨로 칭찬을 받았어요.'},
   {n:'기부', t:'give'},
   {n:'심부름', t:'in', a:3000, d:'무거운 장바구니를 들어 드렸어요.'},
-  {n:'친구 선물', t:'want', a:2000, d:'다음 주가 친구 생일이에요.'},
-  {n:'내 지갑?', t:'lose', a:5000, d:'지갑을 잃어버렸어요.'},
+  {n:'친구 선물', s:'생일', t:'want', it:'친구 선물을', a:2000, d:'다음 주가 친구 생일이에요.'},
+  {n:'내 지갑?', s:'분실', t:'lose', a:5000, d:'지갑을 잃어버렸어요.'},
   {n:'집안일', t:'in', a:2000, d:'방 청소를 끝냈어요.'},
-  {n:'간식', t:'want', a:2000, d:'친구들이 편의점에 가재요.'},
+  {n:'간식', t:'want', it:'간식을', a:2000, d:'친구들이 편의점에 가재요.'},
   {n:'저축', t:'save'},
-  {n:'우산', t:'need', a:2000, d:'갑자기 비가 와서 우산을 사야 해요.'},
-  {n:'인사 미션', t:'in', a:1000, d:'경비 아저씨께 감사 인사를 했어요.'},
-  {n:'간식', t:'want', a:1000, d:'학교 앞에서 붕어빵을 팔아요.'},
+  {n:'우산', t:'need', it:'우산을', a:2000, d:'갑자기 비가 와서 우산을 사야 해요.'},
+  {n:'인사 미션', s:'인사', t:'in', a:1000, d:'경비 아저씨께 감사 인사를 했어요.'},
+  {n:'간식', t:'want', it:'간식을', a:1000, d:'학교 앞에서 붕어빵을 팔아요.'},
   {n:'대청소', t:'in', a:3000, d:'베란다 대청소를 도왔어요.'},
   {n:'기부', t:'give'},
-  {n:'준비물', t:'need', a:1000, d:'깜빡한 준비물을 사야 해요.'},
+  {n:'준비물', t:'need', it:'준비물을', a:1000, d:'깜빡한 준비물을 사야 해요.'},
 ];
 const ALLOWANCE = 5000;
 const COLORS = ['#222222','#2b3cff','#c2410c','#0f766e'];
@@ -286,7 +295,7 @@ $('resetBtn').onclick = () => { $('end').classList.add('hidden'); $('setup').cla
 
 // ---------- 그리기 ----------
 function dieSVG(n){
-  return `<svg class="die" viewBox="0 0 100 100" aria-label="주사위 ${n}"><rect x="4" y="4" width="92" height="92" rx="16"/>${PIPS[n].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="8"/>`).join('')}</svg>`;
+  return `<svg class="die" viewBox="0 0 100 100" role="img" aria-label="주사위 ${n}"><rect x="4" y="4" width="92" height="92" rx="16"/>${PIPS[n].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="8"/>`).join('')}</svg>`;
 }
 function render(){
   const p = cur();
@@ -295,8 +304,8 @@ function render(){
     const d = document.createElement('div');
     d.className = 'sq ' + s.t + (i === p.pos ? ' here' : '');
     d.style.gridRow = CELL[i][0] + 1; d.style.gridColumn = CELL[i][1] + 1;
-    const amt = s.t === 'start' ? '+' + (ALLOWANCE/1000) + '천' : s.t === 'in' ? '+' + s.a.toLocaleString() : s.a ? '-' + s.a.toLocaleString() : '';
-    d.innerHTML = `<b>${s.n}</b><div class="tokens">${G.players.filter(q => q.pos === i).map(q => `<i class="tok" style="background:${q.color}" title="${esc(q.nm)}"></i>`).join('')}</div><span>${amt}</span>`;
+    const amt = s.t === 'start' ? '+' + ALLOWANCE.toLocaleString() : s.t === 'in' ? '+' + s.a.toLocaleString() : s.a ? '-' + s.a.toLocaleString() : '';
+    d.innerHTML = `<b><span class="long">${s.n}</span><span class="short">${s.s || s.n}</span></b><div class="tokens">${G.players.filter(q => q.pos === i).map(q => `<i class="tok" style="background:${q.color}" title="${esc(q.nm)}"></i>`).join('')}</div><span>${amt}</span>`;
     b.appendChild(d);
   });
   const c = document.createElement('div'); c.className = 'center'; c.id = 'center';
@@ -307,8 +316,8 @@ function render(){
 
   $('players').innerHTML = G.players.map((q, i) => `<button class="pcard${i === G.turn ? ' now' : ''}${i === view ? ' sel' : ''}" data-i="${i}" aria-label="${esc(q.nm)} 용돈기입장 보기">
     <span class="nm"><i class="tok" style="background:${q.color}"></i>${esc(q.nm)}</span>
-    <dl><dt>지갑</dt><dd>${won(q.wallet)}</dd><dt>저금통</dt><dd>${won(q.bank)}</dd><dt>기부</dt><dd>${won(q.gave)}</dd></dl></button>`).join('');
-  $('players').querySelectorAll('.pcard').forEach(el => el.onclick = () => { view = +el.dataset.i; render(); });
+    <dl><dt>위치</dt><dd>${SQ[q.pos].n} 칸</dd><dt>지갑</dt><dd>${won(q.wallet)}</dd><dt>저금통</dt><dd>${won(q.bank)}</dd><dt>기부</dt><dd>${won(q.gave)}</dd></dl></button>`).join('');
+  $('players').querySelectorAll('.pcard').forEach(el => el.onclick = () => { view = +el.dataset.i; render(); $('players').querySelector(`[data-i="${view}"]`).focus(); });
 
   const v = G.players[view];
   $('ledgerTitle').textContent = v.nm + '의 용돈기입장';
@@ -365,16 +374,16 @@ function land(p, k, passed){
     return done();
   }
   if (s.t === 'need'){
-    if (p.wallet >= s.a){ record(p, k, s.n + ' 샀어요', 0, s.a); return done(); }
+    if (p.wallet >= s.a){ record(p, k, s.it + ' 샀어요', 0, s.a); return done(); }
     if (p.wallet + p.bank >= s.a){
       const take = s.a - p.wallet;
       p.bank -= take;
       record(p, k, '저금통에서 꺼냈어요', take, 0);
-      record(p, k, s.n + ' 샀어요', 0, s.a);
+      record(p, k, s.it + ' 샀어요', 0, s.a);
       return done();
     }
     p.missed++;
-    record(p, k, s.n + ' 돈이 모자라 사지 못했어요', 0, 0);
+    record(p, k, s.it + ' 살 돈이 모자랐어요', 0, 0);
     return done();
   }
   render();
@@ -382,10 +391,15 @@ function land(p, k, passed){
     const can = p.wallet >= s.a;
     setEvent(`<p class="title">${s.n} · ${won(s.a)}</p><p style="margin:0">${s.d} 살까요, 참을까요?</p>
       <p class="muted small" style="margin:.2rem 0 0">지갑 ${won(p.wallet)}${can ? '' : ' · 돈이 모자라 살 수 없어요'}</p>
-      <div class="choices"><button class="btn" id="buy" ${can ? '' : 'disabled'}>살래요</button><button class="btn sec" id="hold">참을래요</button></div>`);
-    $('buy').onclick = () => { record(p, k, s.n + ' 샀어요', 0, s.a); done(); };
-    $('hold').onclick = () => { p.held++; record(p, k, s.n + ' 참았어요', 0, 0); done(); };
-    (can ? $('buy') : $('hold')).focus({preventScroll:true});
+      <div class="choices">${can ? '<button class="btn" id="buy">살래요</button><button class="btn sec" id="hold">참을래요</button>' : '<button class="btn" id="broke">다음에 살게요</button>'}</div>`);
+    if (can){
+      $('buy').onclick = () => { record(p, k, s.it + ' 샀어요', 0, s.a); done(); };
+      $('hold').onclick = () => { p.held++; record(p, k, s.it + ' 참았어요', 0, 0); done(); };
+    } else {
+      // 고를 수 없었던 경우라 '참은 횟수'가 아니라 '돈이 모자란 횟수'로 셉니다
+      $('broke').onclick = () => { p.missed++; record(p, k, s.it + ' 살 돈이 모자랐어요', 0, 0); done(); };
+    }
+    $('event').querySelector('button').focus({preventScroll:true});
     return;
   }
   // 저축 · 기부: 지갑에서 얼마를 옮길지 고름
