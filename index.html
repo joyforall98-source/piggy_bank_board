@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>돈돈 돼지 저금통 · 용돈 관리 말판놀이</title>
+<meta name="description" content="주사위를 굴려 말판을 돌며 용돈을 벌고, 쓰고, 모으고, 나누는 용돈 관리 말판놀이. 용돈기입장이 저절로 채워집니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+:root{
+  --bg:#fff;--card:#fff;--s900:#222;--s600:#555;--s500:#6b6b6b;--s200:#d9d9d9;--s100:#e6e6e6;--s50:#f7f7f5;
+  --blue:#2b3cff;--ink:#111;
+  --lilac:#c5b0f4;--cream:#f4ecd6;--pink:#efd4d4;--mint:#c8e6cd;--coral:#f3c9b6;--lime:#dceeb1;--grey:#d9d9d9;
+  --r:8px;--r-lg:24px;--ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#121212;--card:#1b1b1b;--s900:#f2f2f2;--s600:#b3b3b3;--s500:#9a9a9a;--s200:#3a3a3a;--s100:#2a2a2a;--s50:#1f1f1f;--blue:#9aa5ff}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--s900);font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif;line-height:1.5}
+.wrap{max-width:72rem;margin:0 auto;padding:1.25rem 1rem 3rem}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;border-bottom:1px solid var(--s100);padding-bottom:.9rem;margin-bottom:1.25rem}
+.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--s600);margin:0 0 .25rem}
+h1{font-size:clamp(1.6rem,1rem + 2.4vw,2.6rem);line-height:1.1;letter-spacing:-.03em;margin:0}
+h1 em{font-style:normal;font-weight:340;color:var(--blue)}
+h2{font-size:1.15rem;letter-spacing:-.02em;margin:0 0 .6rem}
+button,input,select{font:inherit;color:inherit}
+.btn{min-height:44px;padding:0 1.1rem;border:0;border-radius:var(--r);background:var(--s900);color:var(--bg);font-weight:540;cursor:pointer;transition:background .15s var(--ease)}
+.btn:hover:not(:disabled){background:var(--blue);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sec{background:var(--card);color:var(--s900);box-shadow:inset 0 0 0 1px var(--s200)}
+.btn.sec:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--blue);background:var(--card);color:var(--blue)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.panel{background:var(--s50);border-radius:var(--r-lg);padding:1.25rem}
+.muted{color:var(--s600)}
+.small{font-size:.85rem}
+.hidden{display:none!important}
+
+/* 준비 화면 */
+.setup{display:grid;gap:1rem;grid-template-columns:1.2fr 1fr}
+@media (max-width:760px){.setup{grid-template-columns:1fr}}
+.field{display:grid;gap:.3rem;margin-bottom:.9rem}
+.field label{font-weight:600;font-size:.95rem}
+.field input[type=text],.field select{min-height:44px;border-radius:var(--r);border:0;box-shadow:inset 0 0 0 1px var(--s200);background:var(--card);padding:0 .8rem}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.check{display:flex;gap:.6rem;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:.15rem}
+.rules ol{margin:.3rem 0 0;padding-left:1.2rem}
+.rules li{margin:.25rem 0}
+
+/* 게임 화면 */
+.game{display:grid;gap:1.25rem;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}
+@media (max-width:900px){.game{grid-template-columns:1fr}}
+.board{display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);gap:3px;aspect-ratio:1;width:100%;max-width:640px;margin:0 auto}
+.sq{position:relative;border-radius:6px;color:var(--ink);padding:3px 4px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;overflow:hidden}
+.sq b{font-size:clamp(.58rem,.3rem + 1.1vw,.85rem);line-height:1.1;letter-spacing:-.03em;word-break:keep-all}
+.sq span{font-size:clamp(.55rem,.3rem + .9vw,.78rem);font-variant-numeric:tabular-nums;line-height:1.1}
+.sq.in{background:var(--mint)}.sq.want{background:var(--pink)}.sq.need{background:var(--coral)}
+.sq.save{background:var(--cream)}.sq.give{background:var(--lilac)}.sq.lose{background:var(--grey)}.sq.start{background:var(--lime)}
+.sq.here{box-shadow:inset 0 0 0 3px var(--ink)}
+.tokens{display:flex;gap:2px;flex-wrap:wrap;min-height:10px}
+.tok{width:clamp(9px,1.6vw,14px);height:clamp(9px,1.6vw,14px);border-radius:50%;border:2px solid #fff}
+.center{grid-column:2/7;grid-row:2/7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;text-align:center;padding:.5rem}
+.center .who{font-size:clamp(1rem,.6rem + 1.6vw,1.5rem);font-weight:700;letter-spacing:-.03em}
+.die{width:clamp(56px,9vw,84px);height:clamp(56px,9vw,84px)}
+.die rect{fill:var(--card);stroke:var(--s900);stroke-width:3}
+.die circle{fill:var(--s900)}
+.die.roll{animation:shake .45s var(--ease)}
+@keyframes shake{25%{transform:rotate(-12deg)}50%{transform:rotate(10deg)}75%{transform:rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.die.roll{animation:none}}
+.legend{display:flex;flex-wrap:wrap;gap:.35rem .8rem;justify-content:center;margin-top:.6rem;font-size:.8rem;color:var(--s600)}
+.legend i{display:inline-block;width:.8rem;height:.8rem;border-radius:3px;vertical-align:-.1rem;margin-right:.25rem}
+
+.event{background:var(--card);border-radius:var(--r);box-shadow:inset 0 0 0 1px var(--s100);padding:1rem;margin-bottom:1rem}
+.event .title{font-weight:700;font-size:1.1rem;margin:0 0 .25rem}
+.choices{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem}
+.calc{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.75rem}
+.calc input{width:9rem;min-height:44px;border-radius:var(--r);border:0;box-shadow:inset 0 0 0 1px var(--s200);background:var(--card);padding:0 .7rem;font-variant-numeric:tabular-nums}
+.feedback{margin:.5rem 0 0;font-weight:600}
+.players{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem;margin-bottom:1rem}
+.pcard{border-radius:var(--r);background:var(--card);box-shadow:inset 0 0 0 1px var(--s100);padding:.6rem .75rem;cursor:pointer;text-align:left;border:0;width:100%}
+.pcard.now{box-shadow:inset 0 0 0 2px var(--s900)}
+.pcard.sel{background:var(--s50)}
+.pcard .nm{display:flex;align-items:center;gap:.4rem;font-weight:700}
+.pcard dl{display:grid;grid-template-columns:auto 1fr;gap:0 .5rem;margin:.3rem 0 0;font-size:.85rem}
+.pcard dt{color:var(--s600)}.pcard dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:.4rem .45rem;border-bottom:1px solid var(--s100);text-align:right}
+th:nth-child(2),td:nth-child(2){text-align:left}
+th{font-weight:600;color:var(--s600);background:var(--s50)}
+td.q{color:var(--s500)}
+.ledger{max-height:22rem;overflow:auto;border-radius:var(--r);box-shadow:inset 0 0 0 1px var(--s100)}
+.end table td,.end table th{text-align:right}
+.end table td:first-child,.end table th:first-child{text-align:left}
+.reflect{margin-top:1rem}
+.reflect li{margin:.35rem 0}
+footer{margin-top:2.5rem;border-top:1px solid var(--s100);padding-top:1rem;font-size:.82rem;color:var(--s600);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+footer a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">경제·금융교육 · 3–6학년 · 말판놀이</p>
+      <h1>돈돈 돼지 <em>저금통</em></h1>
+    </div>
+    <p class="muted small" style="margin:0;max-width:26rem">주사위를 굴려 말판을 돌며 용돈을 벌고, 쓰고, 모으고, 나눠요. 용돈기입장은 저절로 채워져요.</p>
+  </header>
+
+  <!-- 준비 -->
+  <section id="setup" class="setup">
+    <div class="panel">
+      <h2>놀이 준비</h2>
+      <div class="field">
+        <label for="count">몇 명(모둠)이 할까요?</label>
+        <select id="count"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+      </div>
+      <div class="field">
+        <label>이름</label>
+        <div class="names" id="names"></div>
+      </div>
+      <div class="field">
+        <label for="rounds">한 사람이 몇 번 굴릴까요?</label>
+        <select id="rounds"><option value="6">6번 (약 15분)</option><option value="8" selected>8번 (약 20분)</option><option value="10">10번 (약 25분)</option><option value="12">12번 (약 30분)</option></select>
+      </div>
+      <div class="field">
+        <label for="startMoney">처음 지갑에 든 돈</label>
+        <select id="startMoney"><option value="3000">3,000원</option><option value="5000" selected>5,000원</option><option value="10000">10,000원</option></select>
+      </div>
+      <div class="field check">
+        <input type="checkbox" id="calcMode" checked>
+        <label for="calcMode" style="font-weight:400"><b>남은 돈을 직접 계산해요</b><br><span class="muted small">돈이 들어오거나 나갈 때마다 남은 돈을 적어야 다음 차례로 넘어가요. 빼면 계산까지 저절로 해요.</span></label>
+      </div>
+      <button class="btn" id="startBtn">놀이 시작</button>
+    </div>
+    <div class="panel rules">
+      <h2>놀이 방법</h2>
+      <ol>
+        <li>주사위를 굴려 나온 수만큼 말을 옮겨요.</li>
+        <li>도착한 칸에 적힌 대로 돈이 들어오거나 나가요. 용돈기입장에 기록돼요.</li>
+        <li><b>간식·선물 칸</b>은 살지 참을지 내가 골라요.</li>
+        <li><b>학용품·우산처럼 꼭 필요한 것</b>은 사야 해요. 지갑이 모자라면 저금통에서 꺼내요.</li>
+        <li><b>저축 칸</b>에서는 지갑의 돈을 저금통에 넣고, <b>기부 칸</b>에서는 나눌 돈을 정해요.</li>
+        <li>출발 칸을 지나면 용돈 5,000원을 받아요.</li>
+        <li>다 끝나면 생각해 봐요. 돈을 많이 모으는 것보다 더 중요한 게 무엇일까요?</li>
+      </ol>
+      <p class="muted small">이름과 기록은 이 화면에만 있고 어디에도 저장되지 않아요. 창을 닫으면 사라져요.</p>
+    </div>
+  </section>
+
+  <!-- 놀이 -->
+  <section id="game" class="game hidden" aria-live="polite">
+    <div>
+      <div class="board" id="board" role="img" aria-label="말판"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--mint)"></i>돈을 벌어요</span>
+        <span><i style="background:var(--pink)"></i>살까 참을까</span>
+        <span><i style="background:var(--coral)"></i>꼭 필요해요</span>
+        <span><i style="background:var(--cream)"></i>저축</span>
+        <span><i style="background:var(--lilac)"></i>기부</span>
+        <span><i style="background:var(--grey)"></i>잃어버림</span>
+      </div>
+    </div>
+    <div>
+      <div class="event" id="event"></div>
+      <div class="players" id="players"></div>
+      <h2 id="ledgerTitle">용돈기입장</h2>
+      <div class="ledger"><table>
+        <thead><tr><th>차례</th><th>내용</th><th>들어온 돈</th><th>나간 돈</th><th>남은 돈</th></tr></thead>
+        <tbody id="ledger"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- 마무리 -->
+  <section id="end" class="end hidden">
+    <div class="panel">
+      <h2>놀이를 마쳤어요</h2>
+      <div style="overflow:auto"><table>
+        <thead><tr><th>이름</th><th>지갑</th><th>저금통</th><th>기부한 돈</th><th>참은 횟수</th><th>못 산 횟수</th></tr></thead>
+        <tbody id="summary"></tbody>
+      </table></div>
+      <div class="reflect">
+        <h2>함께 생각해요</h2>
+        <ol>
+          <li>돈을 가장 많이 모은 사람이 가장 잘한 걸까요? 돈을 많이 모으는 것보다 더 중요한 게 무엇일까요?</li>
+          <li>간식이나 선물을 살지 참을지 정할 때 무엇을 기준으로 골랐나요?</li>
+          <li>꼭 필요한 것을 사야 할 때 돈이 모자랐던 적이 있나요? 저금통이 어떤 도움이 됐나요?</li>
+          <li>기부한 돈은 누구에게, 어떻게 쓰이면 좋을까요?</li>
+          <li>오늘 놀이를 내 진짜 용돈 쓰기에 하나만 옮긴다면 무엇을 바꾸고 싶나요?</li>
+        </ol>
+      </div>
+      <div class="choices">
+        <button class="btn" id="againBtn">같은 사람들로 다시 하기</button>
+        <button class="btn sec" id="resetBtn">처음 화면으로</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>김천 경제캠프 말판놀이 「돈돈 돼지 저금통」을 웹으로 옮겼습니다 · 현쌤의 에듀랩</span>
+    <span><a href="https://hyunedulab.com/privacy/">개인정보처리방침</a> · <a href="https://hyunedulab.com/terms/">이용약관</a></span>
+  </footer>
+</div>
+
+<script>
+// 말판 24칸. 출발에서 시계 방향으로 돕니다.
+// t: start 출발 / in 벌기 / want 살까 참을까 / need 꼭 필요 / save 저축 / give 기부 / lose 잃어버림
+const SQ = [
+  {n:'출발', t:'start'},
+  {n:'심부름', t:'in', a:2000, d:'가게 심부름을 다녀왔어요.'},
+  {n:'간식', t:'want', a:1000, d:'떡볶이 냄새가 나요.'},
+  {n:'집안일', t:'in', a:1000, d:'설거지를 도왔어요.'},
+  {n:'학용품', t:'need', a:3000, d:'다 쓴 공책을 새로 사야 해요.'},
+  {n:'저축', t:'save'},
+  {n:'인사 미션', t:'in', a:1000, d:'이웃에게 먼저 인사했어요.'},
+  {n:'깜짝 선물', t:'in', a:2000, d:'할머니께서 용돈을 주셨어요.'},
+  {n:'간식', t:'want', a:2000, d:'새로 나온 아이스크림이 보여요.'},
+  {n:'다쳤어요', t:'need', a:3000, d:'넘어져서 밴드와 약을 사야 해요.'},
+  {n:'바른 글씨', t:'in', a:3000, d:'바른 마음 바른 글씨로 칭찬을 받았어요.'},
+  {n:'기부', t:'give'},
+  {n:'심부름', t:'in', a:3000, d:'무거운 장바구니를 들어 드렸어요.'},
+  {n:'친구 선물', t:'want', a:2000, d:'다음 주가 친구 생일이에요.'},
+  {n:'내 지갑?', t:'lose', a:5000, d:'지갑을 잃어버렸어요.'},
+  {n:'집안일', t:'in', a:2000, d:'방 청소를 끝냈어요.'},
+  {n:'간식', t:'want', a:2000, d:'친구들이 편의점에 가재요.'},
+  {n:'저축', t:'save'},
+  {n:'우산', t:'need', a:2000, d:'갑자기 비가 와서 우산을 사야 해요.'},
+  {n:'인사 미션', t:'in', a:1000, d:'경비 아저씨께 감사 인사를 했어요.'},
+  {n:'간식', t:'want', a:1000, d:'학교 앞에서 붕어빵을 팔아요.'},
+  {n:'대청소', t:'in', a:3000, d:'베란다 대청소를 도왔어요.'},
+  {n:'기부', t:'give'},
+  {n:'준비물', t:'need', a:1000, d:'깜빡한 준비물을 사야 해요.'},
+];
+const ALLOWANCE = 5000;
+const COLORS = ['#222222','#2b3cff','#c2410c','#0f766e'];
+const PIPS = {1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,26],[72,26],[28,50],[72,50],[28,74],[72,74]]};
+
+const $ = id => document.getElementById(id);
+const won = n => n.toLocaleString('ko-KR') + '원';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// 7×7 판의 테두리 칸 위치 (행, 열). 위쪽 줄 → 오른쪽 줄 → 아래쪽 줄 → 왼쪽 줄
+const CELL = [];
+for (let c = 0; c < 7; c++) CELL.push([0, c]);
+for (let r = 1; r < 7; r++) CELL.push([r, 6]);
+for (let c = 5; c >= 0; c--) CELL.push([6, c]);
+for (let r = 5; r >= 1; r--) CELL.push([r, 0]);
+
+let G = null;      // 놀이 상태
+let view = 0;      // 기입장을 보고 있는 사람
+
+// ---------- 준비 ----------
+function drawNameInputs(){
+  const n = +$('count').value, box = $('names');
+  const old = [...box.querySelectorAll('input')].map(i => i.value);
+  box.innerHTML = '';
+  for (let i = 0; i < n; i++){
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.maxLength = 10; inp.setAttribute('aria-label', (i+1) + '번 이름');
+    inp.value = old[i] ?? (i+1) + '모둠';
+    box.appendChild(inp);
+  }
+}
+$('count').addEventListener('change', drawNameInputs);
+drawNameInputs();
+
+function newGame(names){
+  const start = +$('startMoney').value;
+  G = {
+    rounds: +$('rounds').value, calc: $('calcMode').checked, start,
+    turn: 0, busy: false, pending: null,
+    players: names.map((nm, i) => ({nm, color: COLORS[i], pos: 0, rolls: 0, wallet: start, bank: 0, gave: 0, held: 0, missed: 0,
+      log: [{k:'시작', text:'처음 지갑에 든 돈', inc: start, out: 0, bal: start, ok: true}]})),
+  };
+  view = 0;
+  $('setup').classList.add('hidden'); $('end').classList.add('hidden'); $('game').classList.remove('hidden');
+  render(); showRoll();
+}
+$('startBtn').onclick = () => newGame([...$('names').querySelectorAll('input')].map((i, k) => i.value.trim() || (k+1) + '모둠'));
+$('againBtn').onclick = () => newGame(G.players.map(p => p.nm));
+$('resetBtn').onclick = () => { $('end').classList.add('hidden'); $('setup').classList.remove('hidden'); };
+
+// ---------- 그리기 ----------
+function dieSVG(n){
+  return `<svg class="die" viewBox="0 0 100 100" aria-label="주사위 ${n}"><rect x="4" y="4" width="92" height="92" rx="16"/>${PIPS[n].map(([x,y]) => `<circle cx="${x}" cy="${y}" r="8"/>`).join('')}</svg>`;
+}
+function render(){
+  const p = cur();
+  const b = $('board'); b.innerHTML = '';
+  SQ.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'sq ' + s.t + (i === p.pos ? ' here' : '');
+    d.style.gridRow = CELL[i][0] + 1; d.style.gridColumn = CELL[i][1] + 1;
+    const amt = s.t === 'start' ? '+' + (ALLOWANCE/1000) + '천' : s.t === 'in' ? '+' + s.a.toLocaleString() : s.a ? '-' + s.a.toLocaleString() : '';
+    d.innerHTML = `<b>${s.n}</b><div class="tokens">${G.players.filter(q => q.pos === i).map(q => `<i class="tok" style="background:${q.color}" title="${esc(q.nm)}"></i>`).join('')}</div><span>${amt}</span>`;
+    b.appendChild(d);
+  });
+  const c = document.createElement('div'); c.className = 'center'; c.id = 'center';
+  c.innerHTML = `<div class="who"><i class="tok" style="display:inline-block;background:${p.color};vertical-align:middle"></i> ${esc(p.nm)} 차례</div>
+    <div id="dieBox">${dieSVG(G.lastDie || 1)}</div>
+    <div class="muted small">${p.rolls} / ${G.rounds}번 굴림</div>`;
+  b.appendChild(c);
+
+  $('players').innerHTML = G.players.map((q, i) => `<button class="pcard${i === G.turn ? ' now' : ''}${i === view ? ' sel' : ''}" data-i="${i}" aria-label="${esc(q.nm)} 용돈기입장 보기">
+    <span class="nm"><i class="tok" style="background:${q.color}"></i>${esc(q.nm)}</span>
+    <dl><dt>지갑</dt><dd>${won(q.wallet)}</dd><dt>저금통</dt><dd>${won(q.bank)}</dd><dt>기부</dt><dd>${won(q.gave)}</dd></dl></button>`).join('');
+  $('players').querySelectorAll('.pcard').forEach(el => el.onclick = () => { view = +el.dataset.i; render(); });
+
+  const v = G.players[view];
+  $('ledgerTitle').textContent = v.nm + '의 용돈기입장';
+  $('ledger').innerHTML = v.log.map(e => `<tr><td>${e.k}</td><td>${esc(e.text)}</td><td>${e.inc ? won(e.inc) : ''}</td><td>${e.out ? won(e.out) : ''}</td>${e.ok ? `<td>${won(e.bal)}</td>` : '<td class="q">?</td>'}</tr>`).join('');
+  const L = document.querySelector('.ledger'); L.scrollTop = L.scrollHeight;
+}
+const cur = () => G.players[G.turn];
+
+function setEvent(html){ $('event').innerHTML = html; }
+function showRoll(){
+  const p = cur();
+  setEvent(`<p class="title">${esc(p.nm)}, 주사위를 굴려요</p><p class="muted small" style="margin:0">지갑 ${won(p.wallet)} · 저금통 ${won(p.bank)}</p>
+    <div class="choices"><button class="btn" id="rollBtn">주사위 굴리기</button></div>`);
+  $('rollBtn').focus({preventScroll:true});
+  $('rollBtn').onclick = roll;
+}
+
+// ---------- 차례 진행 ----------
+function roll(){
+  if (G.busy) return; G.busy = true;
+  $('rollBtn').disabled = true;
+  const n = 1 + Math.floor(Math.random() * 6);
+  G.lastDie = n;
+  const box = $('dieBox'); box.innerHTML = dieSVG(n); box.firstChild.classList.add('roll');
+  const p = cur(); p.rolls++;
+  const k = p.rolls + '번';
+  let step = 0, passed = false;
+  const fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tick = () => {
+    p.pos = (p.pos + 1) % SQ.length; step++;
+    if (p.pos === 0 && step < n) passed = true;   // 출발 칸을 지나감 (도착은 칸에서 처리)
+    render();
+    if (step < n) setTimeout(tick, fast ? 0 : 220);
+    else setTimeout(() => land(p, k, passed), fast ? 0 : 300);
+  };
+  setTimeout(tick, fast ? 0 : 450);
+}
+
+// 기록 한 줄 남기기. 계산 모드면 남은 돈을 물어볼 때까지 ok=false
+function record(p, k, text, inc, out){
+  p.wallet += inc - out;
+  p.log.push({k, text, inc, out, bal: p.wallet, ok: !G.calc || (!inc && !out), prev: p.wallet - inc + out});
+}
+
+function land(p, k, passed){
+  if (passed) record(p, k, '출발 칸을 지나 용돈을 받았어요', ALLOWANCE, 0);
+  const s = SQ[p.pos];
+  const done = () => { render(); checkThenNext(p); };
+  if (s.t === 'start'){ record(p, k, '출발 칸에 도착해 용돈을 받았어요', ALLOWANCE, 0); return done(); }
+  if (s.t === 'in'){ record(p, k, s.n + ' · ' + s.d, s.a, 0); return done(); }
+  if (s.t === 'lose'){
+    const lost = Math.min(s.a, p.wallet);
+    record(p, k, lost ? s.d + ' (' + won(lost) + ')' : s.d + ' 지갑이 비어 있어서 잃은 돈이 없어요', 0, lost);
+    return done();
+  }
+  if (s.t === 'need'){
+    if (p.wallet >= s.a){ record(p, k, s.n + ' 샀어요', 0, s.a); return done(); }
+    if (p.wallet + p.bank >= s.a){
+      const take = s.a - p.wallet;
+      p.bank -= take;
+      record(p, k, '저금통에서 꺼냈어요', take, 0);
+      record(p, k, s.n + ' 샀어요', 0, s.a);
+      return done();
+    }
+    p.missed++;
+    record(p, k, s.n + ' 돈이 모자라 사지 못했어요', 0, 0);
+    return done();
+  }
+  render();
+  if (s.t === 'want'){
+    const can = p.wallet >= s.a;
+    setEvent(`<p class="title">${s.n} · ${won(s.a)}</p><p style="margin:0">${s.d} 살까요, 참을까요?</p>
+      <p class="muted small" style="margin:.2rem 0 0">지갑 ${won(p.wallet)}${can ? '' : ' · 돈이 모자라 살 수 없어요'}</p>
+      <div class="choices"><button class="btn" id="buy" ${can ? '' : 'disabled'}>살래요</button><button class="btn sec" id="hold">참을래요</button></div>`);
+    $('buy').onclick = () => { record(p, k, s.n + ' 샀어요', 0, s.a); done(); };
+    $('hold').onclick = () => { p.held++; record(p, k, s.n + ' 참았어요', 0, 0); done(); };
+    (can ? $('buy') : $('hold')).focus({preventScroll:true});
+    return;
+  }
+  // 저축 · 기부: 지갑에서 얼마를 옮길지 고름
+  const save = s.t === 'save';
+  const opts = [0, 1000, 2000, 3000, 5000].filter(a => a <= p.wallet);
+  setEvent(`<p class="title">${save ? '저축 칸' : '기부 칸'}</p><p style="margin:0">${save ? '지갑의 돈을 얼마나 저금통에 넣을까요?' : '이웃과 나눌 돈을 얼마나 낼까요?'}</p>
+    <p class="muted small" style="margin:.2rem 0 0">지갑 ${won(p.wallet)}</p>
+    <div class="choices">${opts.map(a => `<button class="btn ${a ? '' : 'sec'}" data-a="${a}">${a ? won(a) : '이번에는 안 할래요'}</button>`).join('')}</div>`);
+  $('event').querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
+    const a = +b.dataset.a;
+    if (!a) record(p, k, save ? '이번에는 저축하지 않았어요' : '이번에는 기부하지 않았어요', 0, 0);
+    else if (save){ p.bank += a; record(p, k, '저금통에 저축했어요', 0, a); }
+    else { p.gave += a; record(p, k, '기부했어요', 0, a); }
+    done();
+  });
+}
+
+// 계산 모드: 아직 확인하지 않은 줄을 차례로 물어봄
+function checkThenNext(p){
+  const e = p.log.find(x => !x.ok);
+  if (!e){ return next(); }
+  view = G.turn; render();
+  let tries = 0;
+  setEvent(`<p class="title">남은 돈은 얼마일까요?</p>
+    <p style="margin:0">${esc(e.text)}</p>
+    <p class="muted" style="margin:.2rem 0 0;font-variant-numeric:tabular-nums">지갑 ${won(e.prev)} ${e.inc ? '+ ' + won(e.inc) : '- ' + won(e.out)} = ?</p>
+    <form class="calc" id="calcForm"><label class="sr" for="ans">남은 돈</label><input id="ans" inputmode="numeric" autocomplete="off" placeholder="숫자만">원
+    <button class="btn">확인</button></form><p class="feedback" id="fb" role="status"></p>`);
+  const ans = $('ans'); ans.focus({preventScroll:true});
+  $('calcForm').onsubmit = ev => {
+    ev.preventDefault();
+    const v = +ans.value.replace(/[^0-9]/g, '');
+    if (v === e.bal){ e.ok = true; $('fb').textContent = '맞아요!'; render(); setTimeout(() => checkThenNext(p), 600); return; }
+    tries++;
+    if (tries >= 2){ e.ok = true; $('fb').textContent = '정답은 ' + won(e.bal) + '이에요. 기입장에 적어 둘게요.'; render(); setTimeout(() => checkThenNext(p), 1600); return; }
+    $('fb').textContent = '다시 계산해 봐요. ' + (e.inc ? '들어온 돈은 더해요.' : '나간 돈은 빼요.');
+    ans.select();
+  };
+}
+
+function next(){
+  G.busy = false;
+  if (G.players.every(q => q.rolls >= G.rounds)) return finish();
+  do { G.turn = (G.turn + 1) % G.players.length; } while (cur().rolls >= G.rounds);
+  view = G.turn; render(); showRoll();
+}
+
+function finish(){
+  $('game').classList.add('hidden'); $('end').classList.remove('hidden');
+  $('summary').innerHTML = G.players.map(q => `<tr><td>${esc(q.nm)}</td><td>${won(q.wallet)}</td><td>${won(q.bank)}</td><td>${won(q.gave)}</td><td>${q.held}번</td><td>${q.missed}번</td></tr>`).join('');
+  $('againBtn').focus({preventScroll:true});
+}
+</script>
+</body>
+</html>
